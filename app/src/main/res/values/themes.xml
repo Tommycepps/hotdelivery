@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HotDelivery" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/hot_orange</item>
+        <item name="colorPrimaryVariant">@color/hot_red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/hot_orange_light</item>
+        <item name="android:statusBarColor">@color/hot_red</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.HotDelivery.Splash" parent="Theme.HotDelivery">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+</resources>
