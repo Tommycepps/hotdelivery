@@ -15,12 +15,10 @@ class ClientDashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val prefs = getSharedPreferences("HotDeliveryPrefs", MODE_PRIVATE)
-        val name = prefs.getString("userName", "Cliente") ?: "Cliente"
-        binding.tvWelcome.text = "Benvenuto, $name! 🍽️"
+        binding.tvWelcome.text = "Benvenuto, ${prefs.getString("userName", "Cliente")}! 🍽️"
 
         binding.btnLogout.setOnClickListener {
             prefs.edit().clear().apply()
-            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
