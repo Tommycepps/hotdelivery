@@ -15,12 +15,10 @@ class CookDashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val prefs = getSharedPreferences("HotDeliveryPrefs", MODE_PRIVATE)
-        val name = prefs.getString("userName", "Chef") ?: "Chef"
-        binding.tvWelcome.text = "Benvenuto, Chef $name! 👨‍🍳"
+        binding.tvWelcome.text = "Benvenuto, Chef ${prefs.getString("userName", "Chef")}! 👨‍🍳"
 
         binding.btnLogout.setOnClickListener {
             prefs.edit().clear().apply()
-            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
