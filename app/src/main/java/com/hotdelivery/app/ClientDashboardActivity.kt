@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.hotdelivery.app.databinding.ActivityClientDashboardBinding
+import com.hotdelivery.app.util.PrefsManager
 
 class ClientDashboardActivity : AppCompatActivity() {
 
@@ -14,11 +15,14 @@ class ClientDashboardActivity : AppCompatActivity() {
         binding = ActivityClientDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val prefs = getSharedPreferences("HotDeliveryPrefs", MODE_PRIVATE)
-        binding.tvWelcome.text = "Benvenuto, ${prefs.getString("userName", "Cliente")}! 🍽️"
+        binding.tvWelcome.text = "Benvenuto, ${PrefsManager.getUserName(this)}! 🍽️"
+
+        binding.btnOpenMap.setOnClickListener {
+            startActivity(Intent(this, MapActivity::class.java))
+        }
 
         binding.btnLogout.setOnClickListener {
-            prefs.edit().clear().apply()
+            PrefsManager.clearSession(this)
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

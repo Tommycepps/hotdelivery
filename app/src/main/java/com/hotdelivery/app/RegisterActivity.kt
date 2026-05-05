@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.hotdelivery.app.databinding.ActivityRegisterBinding
+import com.hotdelivery.app.util.PrefsManager
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -42,34 +43,16 @@ class RegisterActivity : AppCompatActivity() {
         if (selectedRole.isEmpty())      { Toast.makeText(this, "Seleziona il tuo ruolo", Toast.LENGTH_SHORT).show(); return }
 
         showLoading(true)
+        val registered = PrefsManager.registerUser(this, name, email, password, selectedRole)
+        showLoading(false)
 
-        val usersPrefs = getSharedPreferences("HotDeliveryUsers", MODE_PRIVATE)
-        if (usersPrefs.contains("pwd_$email")) {
-            showLoading(false)
+        if (!registered) {
             Toast.makeText(this, "Email già registrata", Toast.LENGTH_SHORT).show()
             return
         }
 
-        usersPrefs.edit().apply {
-            putString("pwd_$email",  password)
-            putString("name_$email", name)
-            putString("role_$email", selectedRole)
-            apply()
-        }
-
-        showLoading(false)
-        saveUserLocally(name, email, selectedRole)
+        PrefsManager.saveSession(this, name, email, selectedRole)
         navigateToDashboard(selectedRole)
-    }
-
-    private fun saveUserLocally(name: String, email: String, role: String) {
-        getSharedPreferences("HotDeliveryPrefs", MODE_PRIVATE).edit().apply {
-            putBoolean("isLoggedIn", true)
-            putString("userName", name)
-            putString("userEmail", email)
-            putString("userRole", role)
-            apply()
-        }
     }
 
     private fun navigateToDashboard(role: String) {
