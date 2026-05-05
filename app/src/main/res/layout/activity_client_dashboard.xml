@@ -38,6 +38,13 @@
         app:layout_constraintStart_toEndOf="@id/logoSmall"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <Button
+        android:id="@+id/btnOpenMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/open_map_button"/>
+
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
