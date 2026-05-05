@@ -3,6 +3,8 @@
     package="com.hotdelivery.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -26,6 +28,7 @@
         <activity android:name=".LoginActivity" android:exported="false"/>
         <activity android:name=".CookDashboardActivity" android:exported="false"/>
         <activity android:name=".ClientDashboardActivity" android:exported="false"/>
+        <activity android:name=".MapActivity" android:exported="false"/>
 
     </application>
 </manifest>
