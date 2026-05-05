@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.hotdelivery.app.databinding.ActivityLoginBinding
+import com.hotdelivery.app.util.PrefsManager
 
 class LoginActivity : AppCompatActivity() {
 
@@ -25,43 +26,25 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginUser() {
-        val email = binding.etEmail.text.toString().trim()
+        val email    = binding.etEmail.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
-        if (TextUtils.isEmpty(email)) { binding.etEmail.error = "Inserisci l'email"; return }
+        if (TextUtils.isEmpty(email))    { binding.etEmail.error = "Inserisci l'email"; return }
         if (TextUtils.isEmpty(password)) { binding.etPassword.error = "Inserisci la password"; return }
 
         showLoading(true)
 
-        val usersPrefs = getSharedPreferences("HotDeliveryUsers", MODE_PRIVATE)
-        val storedPassword = usersPrefs.getString("pwd_$email", null)
-        val storedName = usersPrefs.getString("name_$email", null)
-        val storedRole = usersPrefs.getString("role_$email", null)
-
-        if (storedPassword == null) {
-            showLoading(false)
-            Toast.makeText(this, "Account non trovato", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (storedPassword != password) {
-            showLoading(false)
-            Toast.makeText(this, "Password errata", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        val result = PrefsManager.validateLogin(this, email, password)
         showLoading(false)
-        saveUserLocally(storedName ?: "", email, storedRole ?: "client")
-        navigateToDashboard(storedRole ?: "client")
-    }
 
-    private fun saveUserLocally(name: String, email: String, role: String) {
-        getSharedPreferences("HotDeliveryPrefs", MODE_PRIVATE).edit().apply {
-            putBoolean("isLoggedIn", true)
-            putString("userName", name)
-            putString("userEmail", email)
-            putString("userRole", role)
-            apply()
+        if (result == null) {
+            Toast.makeText(this, "Credenziali non valide", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val (name, role) = result
+        PrefsManager.saveSession(this, name, email, role)
+        navigateToDashboard(role)
     }
 
     private fun navigateToDashboard(role: String) {
