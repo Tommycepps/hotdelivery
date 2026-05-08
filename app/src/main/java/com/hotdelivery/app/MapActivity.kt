@@ -19,9 +19,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private val defaultLat = 44.4949
     private val defaultLng = 11.3426
 
+    // Stile OpenFreeMap — gratuito, nessuna API key necessaria
+    private val MAP_STYLE_URI = "https://tiles.openfreemap.org/styles/liberty"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MapLibre.getInstance(this)
+        // MapLibre v10 richiede sempre il secondo parametro apiKey (stringa vuota per tile open)
+        MapLibre.getInstance(this, "")
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -34,9 +38,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: MapLibreMap) {
         mapLibreMap = map
-        map.setStyle(
-            Style.Builder().fromUri("https://demotiles.maplibre.org/style.json")
-        ) {
+        map.setStyle(Style.Builder().fromUri(MAP_STYLE_URI)) {
             map.cameraPosition = CameraPosition.Builder()
                 .target(LatLng(defaultLat, defaultLng))
                 .zoom(12.0)
@@ -45,10 +47,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun shareLocation() {
-        val target = mapLibreMap.cameraPosition.target
+        val target = if (::mapLibreMap.isInitialized) mapLibreMap.cameraPosition.target else null
         val lat = target?.latitude  ?: defaultLat
         val lng = target?.longitude ?: defaultLng
-        val text = "\uD83D\uDCCD Posizione HotDelivery:\nhttps://www.openstreetmap.org/?mlat=$lat&mlon=$lng&zoom=15"
+        val text = "📍 Posizione HotDelivery:\nhttps://www.openstreetmap.org/?mlat=$lat&mlon=$lng&zoom=15"
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, text)
@@ -56,11 +58,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         startActivity(Intent.createChooser(intent, "Condividi posizione"))
     }
 
-    override fun onStart()   { super.onStart();   binding.mapView.onStart() }
-    override fun onResume()  { super.onResume();  binding.mapView.onResume() }
-    override fun onPause()   { super.onPause();   binding.mapView.onPause() }
-    override fun onStop()    { super.onStop();    binding.mapView.onStop() }
-    override fun onDestroy() { super.onDestroy(); binding.mapView.onDestroy() }
+    override fun onStart()    { super.onStart();    binding.mapView.onStart() }
+    override fun onResume()   { super.onResume();   binding.mapView.onResume() }
+    override fun onPause()    { super.onPause();    binding.mapView.onPause() }
+    override fun onStop()     { super.onStop();     binding.mapView.onStop() }
+    override fun onDestroy()  { super.onDestroy();  binding.mapView.onDestroy() }
     override fun onSaveInstanceState(out: Bundle) {
         super.onSaveInstanceState(out)
         binding.mapView.onSaveInstanceState(out)
