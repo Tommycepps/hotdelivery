@@ -8,8 +8,4 @@
         <item name="android:statusBarColor">@color/hot_red</item>
         <item name="android:windowBackground">@color/white</item>
     </style>
-
-    <style name="Theme.HotDelivery.Splash" parent="Theme.HotDelivery">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-    </style>
 </resources>

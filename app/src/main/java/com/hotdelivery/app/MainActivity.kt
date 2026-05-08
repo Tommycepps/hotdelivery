@@ -10,20 +10,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Se l'utente ha già una sessione attiva, vai direttamente alla dashboard
-        if (PrefsManager.isLoggedIn(this)) {
-            val role = PrefsManager.getUserRole(this)
-            val intent = if (role == "cook") {
-                Intent(this, CookDashboardActivity::class.java)
+        try {
+            if (PrefsManager.isLoggedIn(this)) {
+                val role = PrefsManager.getUserRole(this)
+                val intent = if (role == "cook") {
+                    Intent(this, CookDashboardActivity::class.java)
+                } else {
+                    Intent(this, ClientDashboardActivity::class.java)
+                }
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
             } else {
-                Intent(this, ClientDashboardActivity::class.java)
+                startActivity(Intent(this, LoginActivity::class.java))
             }
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            return
+        } catch (e: Exception) {
+            e.printStackTrace()
+            startActivity(Intent(this, LoginActivity::class.java))
+        } finally {
+            finish()
         }
-
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 }

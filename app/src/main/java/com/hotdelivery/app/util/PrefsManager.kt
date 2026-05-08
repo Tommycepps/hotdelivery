@@ -2,66 +2,95 @@ package com.hotdelivery.app.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import org.json.JSONArray
+import org.json.JSONObject
 
-/**
- * Classe centralizzata per la gestione delle SharedPreferences.
- * Elimina la duplicazione di logica presente in LoginActivity e RegisterActivity.
- */
 object PrefsManager {
 
-    private const val PREFS_SESSION = "HotDeliveryPrefs"
-    private const val PREFS_USERS   = "HotDeliveryUsers"
+    private const val PREF_NAME     = "hotdelivery_prefs"
+    private const val KEY_LOGGED_IN = "logged_in"
+    private const val KEY_USER_NAME = "user_name"
+    private const val KEY_USER_EMAIL = "user_email"
+    private const val KEY_USER_ROLE = "user_role"
+    private const val KEY_USERS     = "registered_users"
 
-    // --- Session ---
+    private fun prefs(context: Context): SharedPreferences =
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    // ── Sessione ──────────────────────────────────────────────────────────
+
+    fun isLoggedIn(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_LOGGED_IN, false)
+
+    fun getUserName(context: Context): String =
+        prefs(context).getString(KEY_USER_NAME, "Utente") ?: "Utente"
+
+    fun getUserEmail(context: Context): String =
+        prefs(context).getString(KEY_USER_EMAIL, "") ?: ""
+
+    fun getUserRole(context: Context): String =
+        prefs(context).getString(KEY_USER_ROLE, "client") ?: "client"
 
     fun saveSession(context: Context, name: String, email: String, role: String) {
-        prefs(context, PREFS_SESSION).edit().apply {
-            putBoolean("isLoggedIn", true)
-            putString("userName",  name)
-            putString("userEmail", email)
-            putString("userRole",  role)
+        prefs(context).edit().apply {
+            putBoolean(KEY_LOGGED_IN, true)
+            putString(KEY_USER_NAME, name)
+            putString(KEY_USER_EMAIL, email)
+            putString(KEY_USER_ROLE, role)
             apply()
         }
     }
 
-    fun clearSession(context: Context) =
-        prefs(context, PREFS_SESSION).edit().clear().apply()
-
-    fun isLoggedIn(context: Context): Boolean =
-        prefs(context, PREFS_SESSION).getBoolean("isLoggedIn", false)
-
-    fun getUserName(context: Context): String =
-        prefs(context, PREFS_SESSION).getString("userName", "Utente") ?: "Utente"
-
-    fun getUserRole(context: Context): String =
-        prefs(context, PREFS_SESSION).getString("userRole", "client") ?: "client"
-
-    // --- Users store ---
-
-    fun registerUser(context: Context, name: String, email: String, password: String, role: String): Boolean {
-        val p = prefs(context, PREFS_USERS)
-        if (p.contains("pwd_$email")) return false
-        p.edit().apply {
-            putString("pwd_$email",  password)
-            putString("name_$email", name)
-            putString("role_$email", role)
+    fun clearSession(context: Context) {
+        prefs(context).edit().apply {
+            putBoolean(KEY_LOGGED_IN, false)
+            remove(KEY_USER_NAME)
+            remove(KEY_USER_EMAIL)
+            remove(KEY_USER_ROLE)
             apply()
         }
+    }
+
+    // ── Registrazione utenti ──────────────────────────────────────────────
+
+    /**
+     * Registra un nuovo utente. Restituisce false se l'email è già in uso.
+     */
+    fun registerUser(context: Context, name: String, email: String,
+                     password: String, role: String): Boolean {
+        val users = getUsers(context)
+        for (i in 0 until users.length()) {
+            val user = users.getJSONObject(i)
+            if (user.getString("email").equals(email, ignoreCase = true)) return false
+        }
+        val newUser = JSONObject().apply {
+            put("name", name)
+            put("email", email)
+            put("password", password)
+            put("role", role)
+        }
+        users.put(newUser)
+        prefs(context).edit().putString(KEY_USERS, users.toString()).apply()
         return true
     }
 
-    /** Restituisce la coppia (name, role) se le credenziali sono corrette, altrimenti null. */
-    fun validateLogin(context: Context, email: String, password: String): Pair<String, String>? {
-        val p = prefs(context, PREFS_USERS)
-        val storedPwd  = p.getString("pwd_$email", null)  ?: return null
-        if (storedPwd != password) return null
-        val name = p.getString("name_$email", "") ?: ""
-        val role = p.getString("role_$email", "client") ?: "client"
-        return Pair(name, role)
+    /**
+     * Verifica credenziali. Restituisce il JSONObject dell'utente oppure null.
+     */
+    fun loginUser(context: Context, email: String, password: String): JSONObject? {
+        val users = getUsers(context)
+        for (i in 0 until users.length()) {
+            val user = users.getJSONObject(i)
+            if (user.getString("email").equals(email, ignoreCase = true) &&
+                user.getString("password") == password) {
+                return user
+            }
+        }
+        return null
     }
 
-    // --- Private helper ---
-
-    private fun prefs(context: Context, name: String): SharedPreferences =
-        context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    private fun getUsers(context: Context): JSONArray {
+        val raw = prefs(context).getString(KEY_USERS, "[]") ?: "[]"
+        return try { JSONArray(raw) } catch (e: Exception) { JSONArray() }
+    }
 }
