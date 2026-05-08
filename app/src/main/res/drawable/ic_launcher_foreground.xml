@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Piatto / cloche -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M20,64 Q54,30 88,64 Z" />
+    <rect
+        android:fillColor="#E53935"
+        android:x="18"
+        android:y="64"
+        android:width="72"
+        android:height="6"
+        android:rx="3" />
+
+    <!-- Pin posizione -->
+    <path
+        android:fillColor="#FF7043"
+        android:pathData="M54,18 C47,18 42,23 42,30 C42,40 54,52 54,52 C54,52 66,40 66,30 C66,23 61,18 54,18 Z" />
+    <circle
+        android:fillColor="#FFFFFF"
+        android:cx="54"
+        android:cy="30"
+        android:r="5" />
+
+    <!-- Testo hot -->
+    <path
+        android:fillColor="#FF7043"
+        android:pathData="M22,78 L22,88 M22,83 L28,83 M28,78 L28,88 M32,78 L32,88 Q40,78 40,83 Q40,88 32,88" />
+
+</vector>
