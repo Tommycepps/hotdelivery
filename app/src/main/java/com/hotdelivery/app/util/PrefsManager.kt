@@ -7,17 +7,17 @@ import org.json.JSONObject
 
 object PrefsManager {
 
-    private const val PREF_NAME     = "hotdelivery_prefs"
-    private const val KEY_LOGGED_IN = "logged_in"
-    private const val KEY_USER_NAME = "user_name"
+    private const val PREF_NAME      = "hotdelivery_prefs"
+    private const val KEY_LOGGED_IN  = "logged_in"
+    private const val KEY_USER_NAME  = "user_name"
     private const val KEY_USER_EMAIL = "user_email"
-    private const val KEY_USER_ROLE = "user_role"
-    private const val KEY_USERS     = "registered_users"
+    private const val KEY_USER_ROLE  = "user_role"
+    private const val KEY_USERS      = "registered_users"
 
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
-    // ── Sessione ──────────────────────────────────────────────────────────
+    // ── Sessione ────────────────────────────────────────────────────────────
 
     fun isLoggedIn(context: Context): Boolean =
         prefs(context).getBoolean(KEY_LOGGED_IN, false)
@@ -51,13 +51,18 @@ object PrefsManager {
         }
     }
 
-    // ── Registrazione utenti ──────────────────────────────────────────────
+    // ── Registrazione utenti ────────────────────────────────────────────────
 
     /**
      * Registra un nuovo utente. Restituisce false se l'email è già in uso.
      */
-    fun registerUser(context: Context, name: String, email: String,
-                     password: String, role: String): Boolean {
+    fun registerUser(
+        context: Context,
+        name: String,
+        email: String,
+        password: String,
+        role: String
+    ): Boolean {
         val users = getUsers(context)
         for (i in 0 until users.length()) {
             val user = users.getJSONObject(i)
@@ -75,14 +80,37 @@ object PrefsManager {
     }
 
     /**
-     * Verifica credenziali. Restituisce il JSONObject dell'utente oppure null.
+     * Verifica credenziali di login.
+     * Restituisce Pair(name, role) se valide, null altrimenti.
+     * Utilizzato da LoginActivity come validateLogin().
+     */
+    fun validateLogin(context: Context, email: String, password: String): Pair<String, String>? {
+        val users = getUsers(context)
+        for (i in 0 until users.length()) {
+            val user = users.getJSONObject(i)
+            if (user.getString("email").equals(email, ignoreCase = true) &&
+                user.getString("password") == password
+            ) {
+                return Pair(
+                    user.getString("name"),
+                    user.getString("role")
+                )
+            }
+        }
+        return null
+    }
+
+    /**
+     * Alias di validateLogin per compatibilità con codice precedente.
+     * Restituisce il JSONObject dell'utente oppure null.
      */
     fun loginUser(context: Context, email: String, password: String): JSONObject? {
         val users = getUsers(context)
         for (i in 0 until users.length()) {
             val user = users.getJSONObject(i)
             if (user.getString("email").equals(email, ignoreCase = true) &&
-                user.getString("password") == password) {
+                user.getString("password") == password
+            ) {
                 return user
             }
         }
